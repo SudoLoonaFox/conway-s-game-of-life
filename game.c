@@ -8,7 +8,7 @@
 const int screenWidth = 1920;
 const int screenHeight = 1080;
 
-float framerate = 0.5;
+float framerate = 2;
 
 void delay(int milliseconds){
     long pause;
@@ -55,10 +55,35 @@ int main(){
 			}
 		}
 
-		
-	for(int i=0; i<screenWidth*screenHeight; i++){
-		int neighbours;
+	for(int y=0; y<screenHeight; y++){
+		for(int x=0; x<screenWidth; x++){
+			int neighbours = 0;
+			neighbours += ((x-1)>0 &&(y+1)<screenHeight)?currentBuffer[(x-1) + (y+1)*screenWidth]:0;
+			neighbours += ((y+1)<screenHeight)?currentBuffer[x + (y+1)*screenWidth]:0;
+			neighbours += ((x+1)<screenWidth &&(y+1)<screenHeight)?currentBuffer[(x+1) + (y+1)*screenWidth]:0;
+			neighbours += ((x-1)>0)?currentBuffer[(x-1) + y*screenWidth]:0;
+			neighbours += ((x+1)<screenWidth)?currentBuffer[(x+1) + y*screenWidth]:0;
+			neighbours += ((x-1)>0 &&(y-1)>0)?currentBuffer[(x-1) + (y-1)*screenWidth]:0;
+			neighbours += ((y-1)>0)?currentBuffer[x + (y-1)*screenWidth]:0;
+			neighbours += ((x+1)<screenWidth &&(y-1)>0)?currentBuffer[(x-1) + (y-1)*screenWidth]:0;
+			if(neighbours<2){
+				previousBuffer[x+y*screenWidth] = 0;
+				continue;
+			}
+			if(neighbours==3){
+				previousBuffer[x+y*screenWidth] = 1;
+				continue;
+			}
+			if(neighbours>3){
+				previousBuffer[x+y*screenWidth] = 0;
+				continue;
+			}
+		}
 	}
+
+
+
+
 	swapBuffers(&currentBuffer, &previousBuffer);
 	// Render Screen
 	for(int i = 0; i<screenWidth*screenHeight; i++){
