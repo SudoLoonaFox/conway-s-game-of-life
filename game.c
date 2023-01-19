@@ -20,11 +20,12 @@ void delay(int milliseconds){
         now = clock();
 }
 void randomBufferFill(int* buffer, int width, int height);
-void swapActiveScreenBuffer(int** buffer_1, int** buffer_2);
+void swapBuffers(int** buffer_1, int** buffer_2);
 
 int main(){
-	int* screenBuffer = malloc(sizeof(int)*screenWidth*screenHeight);
-	int* drawBuffer = malloc(sizeof(int)*screenWidth*screenHeight);
+	int* screenBuffer = malloc(sizeof(uint32_t)*screenWidth*screenHeight);
+	int* currentBuffer = malloc(sizeof(uint32_t)*screenWidth*screenHeight);
+	int* previousBuffer = malloc(sizeof(uint32_t)*screenWidth*screenHeight);
 
 	SDL_Window* window = SDL_CreateWindow("Conway's Game of Life", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight, 0);
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -33,7 +34,7 @@ int main(){
 
 	srand(time(NULL));
 	
-	randomBufferFill(drawBuffer, screenWidth, screenHeight);
+	randomBufferFill(currentBuffer, screenWidth, screenHeight);
 
 	// Game loop
 	int running = 1; // adding kill functionality	
@@ -55,14 +56,18 @@ int main(){
 		}
 
 		
-		// Render 
-
+	for(int i=0; i<screenWidth*screenHeight; i++){
+		int neighbours;
+	}
+	swapBuffers(&currentBuffer, &previousBuffer);
+	// Render Screen
+	for(int i = 0; i<screenWidth*screenHeight; i++){
+		screenBuffer[i] = (currentBuffer[i] == 1)?0xff1a2536:0xaa000000;
+	}
 	SDL_UpdateTexture(screen, NULL, screenBuffer, screenWidth * sizeof(uint32_t));
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, screen, NULL, NULL);
 	SDL_RenderPresent(renderer);
-
-	swapActiveScreenBuffer(&screenBuffer, &drawBuffer);
 
 	// frame cap
 	clock_t endGameLoop = clock();
@@ -75,7 +80,6 @@ int main(){
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 	free(screenBuffer);
-	free(drawBuffer);
 
 	return 0;
 }
@@ -86,7 +90,7 @@ void randomBufferFill(int* buffer, int width, int height){
 	}
 }
 
-void swapActiveScreenBuffer(int** buffer_1, int** buffer_2){
+void swapBuffers(int** buffer_1, int** buffer_2){
 	int* temp = *buffer_1;
 	*buffer_1 = *buffer_2;
 	*buffer_2 = temp;
